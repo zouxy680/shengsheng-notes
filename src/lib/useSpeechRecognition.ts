@@ -47,6 +47,16 @@ export function useSpeechRecognition() {
     setSupported(!!SpeechRecognitionAPI);
   }, []);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
   const startRecording = useCallback(() => {
     const SpeechRecognitionAPI =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -63,9 +73,10 @@ export function useSpeechRecognition() {
     };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      // Use resultIndex to avoid re-processing old results
       let final = "";
       let interim = "";
-      for (let i = 0; i < event.results.length; i++) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
           final += result[0].transcript;

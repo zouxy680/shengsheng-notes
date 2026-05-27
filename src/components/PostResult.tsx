@@ -32,8 +32,10 @@ export default function PostResult({
   );
   const [isSwitching, setIsSwitching] = useState(false);
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useState<ReturnType<typeof setTimeout> | null>(null)[0];
 
   const config = sceneConfigs.find((s) => s.type === scene)!;
+  const currentStyleConfig = postStyles.find((s) => s.value === selectedStyle);
 
   const handleStyleSwitch = async (style: PostStyle) => {
     if (style === selectedStyle) return;
@@ -51,36 +53,33 @@ export default function PostResult({
     const copyText = `标题：${post.title}\n\n封面文案：\n${post.coverText}\n\n正文：\n${post.body}\n\n标签：\n${post.hashtags.map((t) => `#${t}`).join(" ")}\n\n评论区引导：\n${post.commentPrompt}`;
     try {
       await navigator.clipboard.writeText(copyText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     } catch {
-      // fallback
       const textarea = document.createElement("textarea");
       textarea.value = copyText;
       document.body.appendChild(textarea);
       textarea.select();
       document.execCommand("copy");
       document.body.removeChild(textarea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="border-b border-gray-100 bg-white/60 backdrop-blur-sm sticky top-0 z-10">
+      <div className="glass-header border-b border-white/30 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={onBack}
-              className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+              className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
             >
               ← 返回
             </button>
             <div className="flex items-center gap-2">
               <span
-                className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center text-sm`}
+                className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center text-sm shadow-sm`}
               >
                 {config.emoji}
               </span>
@@ -91,23 +90,23 @@ export default function PostResult({
             onClick={handleCopy}
             className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               copied
-                ? "bg-green-100 text-green-600"
-                : "bg-orange-100 text-orange-600 hover:bg-orange-200"
+                ? "bg-green-100/80 text-green-600"
+                : "bg-orange-100/80 text-orange-600 hover:bg-orange-200/80"
             }`}
           >
-            {copied ? "已复制，可以去发布啦 ✓" : "一键复制"}
+            {copied ? "已复制，可以去发布啦" : "一键复制"}
           </button>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-6 w-full flex-1">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left: Post Content (3 cols) */}
+          {/* Left: Post Content */}
           <div className="lg:col-span-3 space-y-5">
             {/* Analysis Card */}
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="glass-card p-5">
               <h3 className="text-sm font-semibold text-gray-500 mb-3">
-                📋 内容分析
+                内容分析
               </h3>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
@@ -123,7 +122,7 @@ export default function PostResult({
                 {analysis.keyDetails.map((d) => (
                   <span
                     key={d}
-                    className="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full"
+                    className="text-xs bg-orange-50/80 text-orange-600 px-2 py-0.5 rounded-full"
                   >
                     {d}
                   </span>
@@ -132,7 +131,7 @@ export default function PostResult({
             </div>
 
             {/* Style Switcher */}
-            <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
+            <div className="glass-card p-5">
               <h3 className="text-sm font-semibold text-gray-500 mb-3">
                 切换风格，生成不同感觉的帖子
               </h3>
@@ -144,8 +143,8 @@ export default function PostResult({
                     disabled={isSwitching}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 border ${
                       selectedStyle === s.value
-                        ? "border-orange-300 bg-orange-50 shadow-sm"
-                        : "border-transparent hover:border-gray-200 hover:bg-gray-50"
+                        ? "border-orange-300/60 bg-orange-50/60 shadow-sm"
+                        : "border-transparent hover:border-gray-200/60 hover:bg-white/60"
                     } ${isSwitching ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <span className="text-lg flex-shrink-0">{s.emoji}</span>
@@ -171,21 +170,17 @@ export default function PostResult({
 
             {/* Generated Post */}
             <div
-              className={`bg-white rounded-2xl p-5 border border-gray-100 shadow-sm transition-all duration-500 ${
+              className={`glass-card p-5 transition-all duration-500 ${
                 isSwitching ? "opacity-30 scale-[0.99]" : "opacity-100 scale-100"
               }`}
             >
               {/* Style Badge */}
-              <div className="flex items-center gap-2 mb-4">
-                {(() => {
-                  const currentStyle = postStyles.find((s) => s.value === selectedStyle);
-                  return currentStyle ? (
-                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium ${currentStyle.color}`}>
-                      {currentStyle.emoji} {currentStyle.label}
-                    </span>
-                  ) : null;
-                })()}
-              </div>
+              {currentStyleConfig && (
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4 ${currentStyleConfig.color}`}>
+                  {currentStyleConfig.emoji} {currentStyleConfig.label}
+                </span>
+              )}
+
               {/* Title */}
               <div className="mb-4">
                 <div className="text-xs text-gray-400 mb-1">标题</div>
@@ -197,7 +192,7 @@ export default function PostResult({
               {/* Cover Text */}
               <div className="mb-4">
                 <div className="text-xs text-gray-400 mb-1">封面文案</div>
-                <p className="text-sm text-gray-600 bg-gradient-to-r from-orange-50 to-pink-50 rounded-xl px-4 py-2.5">
+                <p className="text-sm text-gray-600 bg-gradient-to-r from-orange-50/80 to-pink-50/80 rounded-xl px-4 py-2.5">
                   {post.coverText}
                 </p>
               </div>
@@ -217,7 +212,7 @@ export default function PostResult({
                   {post.hashtags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-xs text-blue-500 bg-blue-50 px-2.5 py-1 rounded-full"
+                      className="text-xs text-blue-500 bg-blue-50/80 px-2.5 py-1 rounded-full"
                     >
                       #{tag}
                     </span>
@@ -230,18 +225,18 @@ export default function PostResult({
                 <div className="text-xs text-gray-400 mb-1">
                   评论区引导
                 </div>
-                <p className="text-sm text-gray-600 bg-gray-50 rounded-xl px-4 py-2.5">
-                  💬 {post.commentPrompt}
+                <p className="text-sm text-gray-600 bg-gray-50/80 rounded-xl px-4 py-2.5">
+                  {post.commentPrompt}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right: Phone Preview (2 cols) */}
+          {/* Right: Phone Preview */}
           <div className="lg:col-span-2">
             <div className="sticky top-20">
               <h3 className="text-sm font-semibold text-gray-400 mb-4 text-center">
-                📱 预览效果
+                预览效果
               </h3>
               <PhonePreview post={post} />
             </div>

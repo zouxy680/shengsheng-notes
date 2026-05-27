@@ -27,6 +27,9 @@ export default function Home() {
   const handleSceneSelect = (s: SceneType) => {
     setScene(s);
     setStep("interview");
+    setRawText("");
+    setAnalysis(null);
+    setPost(null);
     setError("");
   };
 
@@ -47,15 +50,17 @@ export default function Home() {
     }
   };
 
-  const handleGeneratePost = async () => {
+  const handleGeneratePost = async (editedText?: string) => {
     if (!scene || !analysis) return;
+    const textToUse = editedText || rawText;
+    if (editedText) setRawText(editedText);
     setIsGenerating(true);
     setError("");
 
     try {
       const postResult = await generatePost(
         scene,
-        rawText,
+        textToUse,
         "真实日记感" as PostStyle,
         analysis
       );
@@ -83,7 +88,7 @@ export default function Home() {
   return (
     <>
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-50 border border-red-200 text-red-600 px-5 py-3 rounded-xl shadow-lg text-sm max-w-md animate-slide-up">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-50/90 backdrop-blur-sm border border-red-200/60 text-red-600 px-5 py-3 rounded-xl shadow-lg text-sm max-w-md animate-slide-up">
           {error}
           <button
             onClick={() => setError("")}
@@ -107,7 +112,7 @@ export default function Home() {
           scene={scene}
           rawText={rawText}
           analysis={analysis}
-          onConfirm={handleGeneratePost}
+          onConfirm={(editedText) => handleGeneratePost(editedText)}
           onBack={handleBack}
           isGenerating={isGenerating}
         />

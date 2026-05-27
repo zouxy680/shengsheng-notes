@@ -22,9 +22,9 @@ export default function InterviewGuide({
   const [recordingState, setRecordingState] = useState<RecordingState>("idle");
   const [error, setError] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const mockTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const {
-    status: speechStatus,
     transcript: speechTranscript,
     interimTranscript,
     supported: speechSupported,
@@ -36,16 +36,20 @@ export default function InterviewGuide({
   const config = sceneConfigs.find((s) => s.type === scene)!;
   const guide = sceneGuides[scene];
 
-  // Sync speech transcript to text when speech finishes
+  // Sync speech transcript to text when recording stops
   useEffect(() => {
     if (!isRecording && speechTranscript) {
-      setText((prev) => {
-        const combined = prev + speechTranscript;
-        return combined.trim();
-      });
+      setText((prev) => (prev + speechTranscript).trim());
       setRecordingState("transcribed");
     }
   }, [isRecording, speechTranscript]);
+
+  // Cleanup mock timer on unmount
+  useEffect(() => {
+    return () => {
+      if (mockTimerRef.current) clearTimeout(mockTimerRef.current);
+    };
+  }, []);
 
   const handleVoiceToggle = () => {
     if (isRecording) {
@@ -55,9 +59,8 @@ export default function InterviewGuide({
     }
 
     if (!speechSupported) {
-      // Fallback: use mock data
       setRecordingState("recording");
-      setTimeout(() => {
+      mockTimerRef.current = setTimeout(() => {
         setText(config.mockText);
         setRecordingState("transcribed");
         if (textareaRef.current) {
@@ -79,7 +82,6 @@ export default function InterviewGuide({
       return;
     }
     setError("");
-    // Stop any ongoing recording
     if (isRecording) {
       stopRecording();
     }
@@ -92,28 +94,28 @@ export default function InterviewGuide({
     transcribed: "已整理为文字，可继续编辑",
   };
 
-  // Show both confirmed + interim transcript during recording
+  // During recording: show existing text + interim (final transcript handled by effect on stop)
   const displayText = isRecording
-    ? text + speechTranscript + interimTranscript
+    ? text + interimTranscript
     : text;
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="border-b border-gray-100 bg-white/60 backdrop-blur-sm sticky top-0 z-10">
+      <div className="glass-header border-b border-white/30 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => {
               if (isRecording) stopRecording();
               onBack();
             }}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-sm"
+            className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
           >
             ← 返回
           </button>
           <div className="flex items-center gap-2">
             <span
-              className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center text-sm`}
+              className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center text-sm shadow-sm`}
             >
               {config.emoji}
             </span>
@@ -144,7 +146,7 @@ export default function InterviewGuide({
                   }}
                 >
                   <span
-                    className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${config.gradient} text-white text-xs flex items-center justify-center mt-0.5`}
+                    className={`flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br ${config.gradient} text-white text-xs flex items-center justify-center mt-0.5 shadow-sm`}
                   >
                     {i + 1}
                   </span>
@@ -167,14 +169,14 @@ export default function InterviewGuide({
                   setError("");
                 }}
                 placeholder="可以像发语音给朋友一样随便说，比如：今天下班路上突然觉得一个人走也挺舒服的……"
-                className={`w-full h-56 p-4 rounded-2xl border bg-white focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 text-gray-700 text-sm leading-relaxed resize-none placeholder:text-gray-300 ${
+                className={`w-full h-56 p-4 rounded-2xl border bg-white/80 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-300 text-gray-700 text-sm leading-relaxed resize-none placeholder:text-gray-300 transition-all duration-300 ${
                   isRecording ? "border-red-200 ring-2 ring-red-100" : "border-gray-200"
                 }`}
               />
               {isRecording && (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-red-50 px-2.5 py-1 rounded-full">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-red-50/90 backdrop-blur-sm px-2.5 py-1 rounded-full shadow-sm">
                   <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                  <span className="text-xs text-red-500">录音中</span>
+                  <span className="text-xs text-red-500 font-medium">录音中</span>
                 </div>
               )}
             </div>
@@ -194,12 +196,12 @@ export default function InterviewGuide({
             <div className="mt-4">
               <button
                 onClick={handleVoiceToggle}
-                className={`w-full py-3 rounded-xl border-2 border-dashed transition-all duration-300 flex items-center justify-center gap-3 text-sm ${
+                className={`w-full py-3 rounded-xl border-2 border-dashed transition-all duration-300 flex items-center justify-center gap-3 text-sm font-medium ${
                   isRecording
-                    ? "border-red-300 bg-red-50 text-red-500 animate-pulse-soft"
+                    ? "border-red-300 bg-red-50/80 text-red-500 animate-pulse-soft"
                     : recordingState === "transcribed"
-                    ? "border-green-300 bg-green-50 text-green-600"
-                    : "border-gray-200 bg-gray-50 text-gray-400 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-500"
+                    ? "border-green-300 bg-green-50/80 text-green-600"
+                    : "border-gray-200 bg-white/60 text-gray-400 hover:border-orange-300 hover:bg-orange-50/60 hover:text-orange-500"
                 }`}
               >
                 {isRecording ? (
@@ -247,36 +249,11 @@ export default function InterviewGuide({
                 isGenerating
                   ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : text.trim()
-                  ? "bg-gradient-to-r from-orange-400 to-rose-400 text-white shadow-md hover:shadow-lg active:scale-[0.98]"
+                  ? "btn-primary text-white shadow-md hover:shadow-lg active:scale-[0.98]"
                   : "bg-gray-100 text-gray-300 cursor-not-allowed"
               }`}
             >
-              {isGenerating ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg
-                    className="animate-spin w-4 h-4"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  AI 正在整理你的内容…
-                </span>
-              ) : (
-                "下一步：让 AI 整理我的内容"
-              )}
+              {isGenerating ? "AI 正在整理你的内容…" : "下一步：让 AI 整理我的内容"}
             </button>
           </div>
         </div>

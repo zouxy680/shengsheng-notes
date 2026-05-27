@@ -1,4 +1,4 @@
-import { SceneConfig, SceneGuide, PostStyle } from "./types";
+import { SceneConfig, SceneGuide, SceneType, PostStyle } from "./types";
 
 export const sceneConfigs: SceneConfig[] = [
   {
@@ -43,7 +43,7 @@ export const sceneConfigs: SceneConfig[] = [
   },
 ];
 
-export const sceneGuides: Record<string, SceneGuide> = {
+export const sceneGuides: Record<SceneType, SceneGuide> = {
   情绪日记: {
     sceneType: "情绪日记",
     questions: [

@@ -24,11 +24,6 @@ export interface SceneGuide {
   questions: GuideQuestion[];
 }
 
-export interface UserInput {
-  sceneType: SceneType;
-  rawText: string;
-}
-
 export interface ContentAnalysis {
   scene: string;
   emotion: string;
@@ -54,15 +49,4 @@ export interface SceneConfig {
   emoji: string;
   gradient: string;
   mockText: string;
-}
-
-export interface AppState {
-  selectedScene: SceneType | null;
-  guideQuestions: GuideQuestion[];
-  rawText: string;
-  selectedStyle: PostStyle;
-  analysis: ContentAnalysis | null;
-  generatedPost: XiaohongshuPost | null;
-  isGenerating: boolean;
-  recordingState: RecordingState;
 }

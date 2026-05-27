@@ -6,12 +6,12 @@ interface PhonePreviewProps {
   post: XiaohongshuPost;
 }
 
-const styleCoverGradients: Record<string, string> = {
-  真实日记感: "from-amber-100 via-orange-50 to-yellow-100",
-  情绪共鸣感: "from-pink-100 via-rose-50 to-purple-100",
-  实用攻略感: "from-emerald-100 via-teal-50 to-cyan-100",
-  种草推荐感: "from-purple-100 via-violet-50 to-pink-100",
-  避雷复盘感: "from-red-100 via-orange-50 to-amber-100",
+const styleCoverGradients: Record<PostStyle, string> = {
+  真实日记感: "from-amber-200 via-orange-100 to-yellow-200",
+  情绪共鸣感: "from-pink-200 via-rose-100 to-purple-200",
+  实用攻略感: "from-emerald-200 via-teal-100 to-cyan-200",
+  种草推荐感: "from-purple-200 via-violet-100 to-pink-200",
+  避雷复盘感: "from-red-200 via-orange-100 to-amber-200",
 };
 
 export default function PhonePreview({ post }: PhonePreviewProps) {
@@ -31,20 +31,21 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
         </div>
 
         {/* App header */}
-        <div className="px-4 py-2 border-b border-gray-50">
+        <div className="px-4 py-2 border-b border-gray-50/60">
           <span className="text-xs text-gray-400">社区帖子预览</span>
         </div>
 
         {/* Cover area */}
-        <div className={`mx-3 mt-3 rounded-xl bg-gradient-to-br ${gradient} h-48 flex items-center justify-center relative overflow-hidden transition-all duration-500`}>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center px-6">
-              <p className="text-lg font-bold text-gray-700 leading-snug">
-                {post.coverText}
-              </p>
-            </div>
+        <div className={`mx-3 mt-3 rounded-xl bg-gradient-to-br ${gradient} h-48 flex items-center justify-center relative overflow-hidden transition-all duration-700`}>
+          {/* Decorative circles */}
+          <div className="absolute -top-8 -right-8 w-24 h-24 bg-white/20 rounded-full" />
+          <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/15 rounded-full" />
+          <div className="text-center px-6 relative z-10">
+            <p className="text-lg font-bold text-gray-700/90 leading-snug">
+              {post.coverText}
+            </p>
           </div>
-          <div className="absolute bottom-2 right-2 bg-white/80 backdrop-blur-sm rounded-md px-2 py-0.5 text-[10px] text-gray-500">
+          <div className="absolute bottom-2 right-2 bg-white/70 backdrop-blur-sm rounded-md px-2 py-0.5 text-[10px] text-gray-500">
             封面文案
           </div>
         </div>
@@ -74,7 +75,7 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
             {post.hashtags.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded"
+                className="text-[10px] text-blue-500 bg-blue-50/80 px-1.5 py-0.5 rounded"
               >
                 #{tag}
               </span>
@@ -82,14 +83,14 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
           </div>
 
           {/* Comment prompt */}
-          <div className="bg-gray-50 rounded-lg px-2.5 py-2 mb-3">
+          <div className="bg-gray-50/80 rounded-lg px-2.5 py-2 mb-3">
             <p className="text-[10px] text-gray-400">
               {post.commentPrompt}
             </p>
           </div>
 
           {/* Engagement mock */}
-          <div className="flex items-center gap-4 pb-3 border-t border-gray-50 pt-2">
+          <div className="flex items-center gap-4 pb-3 border-t border-gray-50/60 pt-2">
             <span className="text-[10px] text-gray-300">❤️ 0</span>
             <span className="text-[10px] text-gray-300">⭐ 收藏</span>
             <span className="text-[10px] text-gray-300">💬 评论</span>
