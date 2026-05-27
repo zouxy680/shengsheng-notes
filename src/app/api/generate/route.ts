@@ -1,0 +1,148 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const API_KEY = process.env.AI_API_KEY || "";
+const BASE_URL = process.env.AI_BASE_URL || "https://api.openai.com/v1";
+const MODEL = process.env.AI_MODEL || "gpt-4o-mini";
+
+export async function POST(req: NextRequest) {
+  const { sceneType, rawText, postStyle, analysis } = await req.json();
+
+  if (!rawText || !sceneType || !postStyle) {
+    return NextResponse.json({ error: "缺少必要参数" }, { status: 400 });
+  }
+
+  if (!API_KEY) {
+    return NextResponse.json(
+      {
+        error:
+          "未配置 AI API Key。请在 .env.local 中设置 AI_API_KEY 和 AI_BASE_URL。",
+      },
+      { status: 500 }
+    );
+  }
+
+  const styleGuideMap: Record<string, string> = {
+    真实日记感: `【真实日记感】
+- 标题：像发朋友圈一样自然，用第一人称感受型标题，比如"今天xxx的时候突然觉得xxx""下班路上被xxx治愈了"。不要用"分享""推荐"等词。
+- 封面文案：一句内心独白或当时的感受，口语化，12字以内，如"原来一个人也可以很舒服"
+- 正文：像写日记/发微博，用"我"开头，按时间或感受的自然流动来写。语气像在跟闺蜜聊天，随意但真诚。可以有小感叹（"诶""真的""突然"）。2-3段即可，每段2-3句话。
+- 标签：偏生活化、情绪化，如#日常碎碎念 #治愈系 #下班路上的小确幸
+- 评论区引导：问读者类似经历或感受，如"你们有过这种突然被治愈的瞬间吗？"`,
+
+    情绪共鸣感: `【情绪共鸣感】
+- 标题：从个人经历提炼出一种普遍的情绪或感悟，让人一看就想点进来，比如"有些快乐真的不需要太多条件""长大后才懂的事"。用"你有没有过""原来"等引发共鸣。
+- 封面文案：一句能触动人心的话，带有一点哲理感，如"原来快乐可以这么简单"
+- 正文：先讲自己的故事（简短），然后延伸到一种大家都能懂的感触。结构：故事引入 → 情绪共鸣 → 一句总结感悟。语气温暖、走心。可以反问读者。3段左右。
+- 标签：偏情感、共鸣向，如#情绪碎片 #成年人的崩溃与治愈 #原来我们都一样
+- 评论区引导：邀请读者分享自己类似的感受或故事，如"说说你最近被什么小事治愈了？"`,
+
+    实用攻略感: `【实用攻略感】
+- 标题：明确告诉读者这篇帖子能帮到什么，用"怎么选""避坑指南""亲测有效""N个实用建议"等句式，如"这家咖啡店到底值不值得去？亲测告诉你"。标题要具体、有信息量。
+- 封面文案：一句话概括核心结论或实用信息，如"适合拍照，不太适合办公"
+- 正文：结构化表达。用"✅ 推荐/亮点""⚠️ 注意/避坑""💡 小tips"等标记分段。每段先说结论再说原因。语气客观理性但带个人真实体验，不是冷冰冰的评测。信息密度要高，让读者觉得"这篇真的有用"。
+- 标签：偏实用、攻略向，如#探店攻略 #咖啡店推荐 #避坑指南
+- 评论区引导：问读者相关经验或建议补充，如"你们还知道哪些适合安静办公的咖啡店？"`,
+
+    种草推荐感: `【种草推荐感】
+- 标题：用一个具体的使用场景或打动你的点来做标题，比如"睡前看书终于不刺眼了""这盏小灯让我的卧室温馨了10倍"。不要太夸张（禁止"封神""绝绝子"），但要让人有好奇心。
+- 封面文案：一句有画面感的话，描述使用场景或效果，如"色温可调，晚上看书眼睛超舒服"
+- 正文：用场景化叙事。先描述你遇到的问题/需求，再引入这个东西怎么解决你的问题，然后具体说使用体验和感受。语气是"朋友之间安利"的感觉，热情但不浮夸。最后可以简单提一个缺点显得真实。3段左右。
+- 标签：偏推荐、种草向，带产品/品类关键词，如#阅读灯推荐 #好物分享 #提升幸福感的小物件
+- 评论区引导：问读者是否也有类似需求或推荐，如"你们有什么提升睡前幸福感的好物吗？"`,
+
+    避雷复盘感: `【避雷复盘感】
+- 标题：直接、犀利但理性，比如"排了一小时队，结果就这？""人均200+，说实话不太值"。用具体数据或事实增强说服力。不情绪化，但也不客气。
+- 封面文案：一句总结性的吐槽或提醒，如"适合拍照，不适合认真吃饭"
+- 正文：按时间线或维度复盘。先说期待→再说实际体验→具体哪些地方踩雷→最后理性总结。每一点都要有具体事实支撑（价格、时间、具体细节），不要空泛吐槽。语气像一个理性的朋友在劝你。可以适当承认好的方面，显得客观。
+- 标签：偏避雷、吐槽向，如#避雷 #网红店真实体验 #消费警示
+- 评论区引导：邀请读者分享类似经历或不同意见，如"你们有没有踩过类似的坑？或者觉得这家其实还行的？"`,
+  };
+
+  const styleGuide = styleGuideMap[postStyle] || styleGuideMap["真实日记感"];
+
+  const systemPrompt = `你是一个小红书帖子整理助手。请把用户像语音聊天一样说出的真实内容，整理成一篇适合小红书发布的帖子。
+
+重要原则：
+1. 不要编造具体事实。所有内容必须基于用户说的原话进行整理和扩写。
+2. 保留用户原本的真实感受和情绪。
+3. 语言要自然，像真实用户分享，不要像机器生成的。
+4. 不要使用过度夸张的词，比如"封神""绝绝子""必冲""不允许没人知道"。
+5. 内容要有生活感，不要像广告软文。
+6. 帖子应该让用户觉得："这确实像我刚刚想表达的东西，只是被整理得更清楚了。"
+7. 如果用户的原文很口语化、碎片化，你需要帮他把散落的点串成有逻辑的叙述，补充自然过渡，但不要添加用户没说过的具体事实。
+
+当前风格的详细要求：
+${styleGuide}
+
+请严格按照以上风格要求生成帖子，并返回 JSON：
+
+字段：
+title：标题，25字以内
+coverText：封面文案，16字以内
+body：正文，按风格要求的段落数和结构，用\\n\\n分段
+hashtags：标签数组，4到6个，按风格要求选择标签风格
+commentPrompt：评论区互动问题，按风格要求
+style：${postStyle}`;
+
+  const analysisStr = analysis ? JSON.stringify(analysis, null, 2) : "无";
+
+  const userPrompt = `用户选择的场景：${sceneType}
+
+用户选择的风格：${postStyle}
+
+用户原始输入：
+${rawText}
+
+结构化分析：
+${analysisStr}
+
+请基于以上信息生成一篇小红书帖子。记住：所有具体内容必须来自用户的原话，你可以帮助整理逻辑、补充过渡、优化表达，但不要凭空编造事实。`;
+
+  try {
+    const response = await fetch(`${BASE_URL}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.7,
+        response_format: { type: "json_object" },
+      }),
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("AI API error:", err);
+      return NextResponse.json(
+        { error: "AI API 调用失败", detail: err },
+        { status: 502 }
+      );
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || "";
+
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return NextResponse.json(
+        { error: "AI 返回格式异常" },
+        { status: 502 }
+      );
+    }
+
+    const post = JSON.parse(jsonMatch[0]);
+    return NextResponse.json(post);
+  } catch (e) {
+    console.error("Generate error:", e);
+    return NextResponse.json(
+      { error: "服务异常，请稍后再试" },
+      { status: 500 }
+    );
+  }
+}

@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import {
+  SceneType,
+  PostStyle,
+  XiaohongshuPost,
+  ContentAnalysis,
+} from "@/lib/types";
+import { analyzeContent, generatePost } from "@/lib/api";
+import SceneSelect from "@/components/SceneSelect";
+import InterviewGuide from "@/components/InterviewGuide";
+import AnalysisPreview from "@/components/AnalysisPreview";
+import PostResult from "@/components/PostResult";
+
+type Step = "select" | "interview" | "analysis" | "result";
 
 export default function Home() {
+  const [step, setStep] = useState<Step>("select");
+  const [scene, setScene] = useState<SceneType | null>(null);
+  const [rawText, setRawText] = useState("");
+  const [analysis, setAnalysis] = useState<ContentAnalysis | null>(null);
+  const [post, setPost] = useState<XiaohongshuPost | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSceneSelect = (s: SceneType) => {
+    setScene(s);
+    setStep("interview");
+    setError("");
+  };
+
+  const handleInterviewSubmit = async (text: string) => {
+    if (!scene) return;
+    setRawText(text);
+    setIsGenerating(true);
+    setError("");
+
+    try {
+      const analysisResult = await analyzeContent(scene, text);
+      setAnalysis(analysisResult);
+      setStep("analysis");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "分析失败，请稍后再试");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleGeneratePost = async () => {
+    if (!scene || !analysis) return;
+    setIsGenerating(true);
+    setError("");
+
+    try {
+      const postResult = await generatePost(
+        scene,
+        rawText,
+        "真实日记感" as PostStyle,
+        analysis
+      );
+      setPost(postResult);
+      setStep("result");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "生成失败，请稍后再试");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleBack = () => {
+    setError("");
+    if (step === "interview") {
+      setStep("select");
+      setScene(null);
+    } else if (step === "analysis") {
+      setStep("interview");
+    } else if (step === "result") {
+      setStep("analysis");
+    }
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {error && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-50 border border-red-200 text-red-600 px-5 py-3 rounded-xl shadow-lg text-sm max-w-md animate-slide-up">
+          {error}
+          <button
+            onClick={() => setError("")}
+            className="ml-3 text-red-400 hover:text-red-600"
+          >
+            关闭
+          </button>
+        </div>
+      )}
+      {step === "select" && <SceneSelect onSelect={handleSceneSelect} />}
+      {step === "interview" && scene && (
+        <InterviewGuide
+          scene={scene}
+          onSubmit={handleInterviewSubmit}
+          onBack={handleBack}
+          isGenerating={isGenerating}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+      {step === "analysis" && scene && analysis && (
+        <AnalysisPreview
+          scene={scene}
+          rawText={rawText}
+          analysis={analysis}
+          onConfirm={handleGeneratePost}
+          onBack={handleBack}
+          isGenerating={isGenerating}
+        />
+      )}
+      {step === "result" && scene && analysis && post && (
+        <PostResult
+          scene={scene}
+          rawText={rawText}
+          analysis={analysis}
+          initialPost={post}
+          onBack={handleBack}
+        />
+      )}
+    </>
   );
 }
