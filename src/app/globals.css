@@ -326,6 +326,26 @@ body {
   .btn-loading {
     animation: none;
   }
+  .animate-fade-only {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* ── Vertical text ── */
+.text-vertical {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── Opacity-only fade (no transform, safe for cards with rotation) ── */
+@keyframes fadeOnly {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-only {
+  animation: fadeOnly 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Scrollbar ── */
