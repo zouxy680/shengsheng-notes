@@ -95,15 +95,15 @@ export default function InterviewGuide({
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => { if (isRecording) stopRecording(); onBack(); }}
-            className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-sm"
+            className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-xs tracking-wide uppercase"
           >
             ← 返回
           </button>
           <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-md bg-gradient-to-br ${config.gradient} flex items-center justify-center text-xs`}>
+            <span className={`w-6 h-6 rounded-full bg-gradient-to-br ${config.gradient} flex items-center justify-center text-xs border border-black/5`}>
               {config.emoji}
             </span>
-            <span className="text-sm font-medium text-[var(--foreground)]">{scene}</span>
+            <span className="font-typewriter text-xs tracking-wide">{scene}</span>
           </div>
         </div>
       </div>
@@ -112,10 +112,10 @@ export default function InterviewGuide({
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Guide (2 cols) */}
           <div className="lg:col-span-2">
-            <h2 className="text-lg font-semibold text-[var(--foreground)] mb-1">
-              说说你的故事
+            <h2 className="font-serif-display text-2xl font-light text-[var(--foreground)] mb-1">
+              说说你的<span className="italic">故事</span>
             </h2>
-            <p className="text-sm text-[var(--muted)] mb-5">
+            <p className="font-typewriter text-[11px] text-[var(--muted)] mb-5 tracking-wide">
               不用每个都回答，挑想说的说。
             </p>
             <div className="space-y-2.5">
@@ -125,7 +125,7 @@ export default function InterviewGuide({
                   className="flex items-start gap-2.5 animate-slide-up"
                   style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}
                 >
-                  <span className={`flex-shrink-0 w-5 h-5 rounded-full bg-gradient-to-br ${config.gradient} text-white text-[10px] flex items-center justify-center mt-0.5`}>
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full border border-[var(--accent)]/30 text-[var(--accent)] font-typewriter text-[10px] flex items-center justify-center mt-0.5">
                     {i + 1}
                   </span>
                   <p className="text-sm text-[var(--foreground)] leading-relaxed">
@@ -146,33 +146,33 @@ export default function InterviewGuide({
                 placeholder="像发语音给朋友一样随便说，比如：今天下班路上突然觉得一个人走也挺舒服的……"
                 className={`w-full h-52 p-4 rounded-xl text-sm leading-relaxed resize-none max-w-[75ch] ${
                   isRecording
-                    ? "input-base border-[var(--accent)] ring-[3px] ring-[rgba(255,71,87,0.1)]"
+                    ? "input-base border-[var(--accent)] ring-[3px] ring-[rgba(198,93,59,0.1)]"
                     : "input-base"
                 }`}
               />
               {isRecording && (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[var(--accent-light)] px-2 py-0.5 rounded-full">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[var(--accent-light)] px-2 py-0.5 rounded-full border border-[var(--accent)]/20">
                   <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-pulse" />
-                  <span className="text-[11px] text-[var(--accent)] font-medium">录音中</span>
+                  <span className="font-typewriter text-[10px] text-[var(--accent)] tracking-wide">录音中</span>
                 </div>
               )}
             </div>
 
             {isRecording && interimTranscript && (
-              <p className="text-xs text-[var(--muted)] px-1">正在识别：{interimTranscript}</p>
+              <p className="font-typewriter text-[10px] text-[var(--muted)] px-1">正在识别：{interimTranscript}</p>
             )}
 
-            {error && <p className="text-sm text-red-500 animate-fade-in">{error}</p>}
+            {error && <p className="text-sm text-[var(--accent)] animate-fade-in">{error}</p>}
 
             {/* Voice toggle */}
             <button
               onClick={handleVoiceToggle}
-              className={`w-full py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border ${
+              className={`w-full py-2.5 rounded-lg font-typewriter text-xs font-medium transition-all duration-200 border ${
                 isRecording
                   ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--accent)] animate-pulse-soft"
                   : recordingState === "transcribed"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-600"
-                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                  ? "border-[var(--color-warm-gray)] bg-[var(--color-paper)] text-[var(--muted)]"
+                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)]"
               }`}
             >
               {isRecording ? (
@@ -188,7 +188,7 @@ export default function InterviewGuide({
                 </span>
               ) : voiceLabel[recordingState]}
             </button>
-            <p className="text-[11px] text-[var(--muted)] opacity-60 text-center">
+            <p className="font-typewriter text-[10px] text-[var(--muted)] opacity-50 text-center tracking-wide">
               {speechSupported ? "浏览器语音识别 · 也可以直接打字" : "浏览器不支持语音 · 请用 Chrome"}
             </p>
 
@@ -196,7 +196,7 @@ export default function InterviewGuide({
             <button
               onClick={handleSubmit}
               disabled={isGenerating || !text.trim()}
-              className="w-full py-3 rounded-lg font-medium text-sm btn-primary"
+              className="w-full py-3 rounded-lg font-medium text-sm btn-primary font-typewriter tracking-wide"
             >
               {isGenerating ? "AI 正在整理……" : "下一步：让 AI 整理内容"}
             </button>

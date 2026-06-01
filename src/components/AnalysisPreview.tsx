@@ -25,42 +25,46 @@ export default function AnalysisPreview({
   const config = sceneConfigs.find((s) => s.type === scene)!;
 
   const sections = [
-    { emoji: "💭", label: "情绪", bg: "bg-pink-50", text: "text-pink-700", content: analysis.emotion },
-    { emoji: "🎯", label: "主题", bg: "bg-amber-50", text: "text-amber-700", content: analysis.topic },
+    { emoji: "💭", label: "情绪", bg: "bg-rose-50", text: "text-rose-800", content: analysis.emotion },
+    { emoji: "🎯", label: "主题", bg: "bg-amber-50", text: "text-amber-800", content: analysis.topic },
   ];
 
   const tagSections = [
-    { emoji: "🔍", label: "关键细节", bg: "bg-blue-50", text: "text-blue-600", items: analysis.keyDetails },
-    { emoji: "✨", label: "亮点", bg: "bg-emerald-50", text: "text-emerald-600", items: analysis.highlights },
-    { emoji: "⚠️", label: "槽点", bg: "bg-red-50", text: "text-red-500", items: analysis.drawbacks },
-    { emoji: "👥", label: "适合人群", bg: "bg-purple-50", text: "text-purple-600", items: analysis.targetAudience },
+    { emoji: "🔍", label: "关键细节", bg: "bg-sky-50", text: "text-sky-800", items: analysis.keyDetails },
+    { emoji: "✨", label: "亮点", bg: "bg-emerald-50", text: "text-emerald-800", items: analysis.highlights },
+    { emoji: "⚠️", label: "槽点", bg: "bg-red-50", text: "text-red-800", items: analysis.drawbacks },
+    { emoji: "👥", label: "适合人群", bg: "bg-violet-50", text: "text-violet-800", items: analysis.targetAudience },
   ].filter((s) => s.items.length > 0);
 
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       <div className="sticky-header sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={onBack} className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-sm">
+          <button onClick={onBack} className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-xs tracking-wide uppercase">
             ← 返回编辑
           </button>
           <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 rounded-md bg-gradient-to-br ${config.gradient} flex items-center justify-center text-xs`}>
+            <span className={`w-6 h-6 rounded-full bg-gradient-to-br ${config.gradient} flex items-center justify-center text-xs border border-black/5`}>
               {config.emoji}
             </span>
-            <span className="text-sm font-medium">AI 内容整理</span>
+            <span className="font-typewriter text-xs tracking-wide">AI 内容整理</span>
           </div>
         </div>
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 w-full flex-1">
-        <h2 className="text-lg font-semibold mb-1">AI 帮你整理好了</h2>
-        <p className="text-sm text-[var(--muted)] mb-6">看看提取的信息对不对，可以修改你的原文后继续。</p>
+        <h2 className="font-serif-display text-2xl font-light mb-1">
+          AI 帮你整理<span className="italic">好了</span>
+        </h2>
+        <p className="font-typewriter text-[11px] text-[var(--muted)] mb-6 tracking-wide">
+          看看提取的信息对不对，可以修改你的原文后继续。
+        </p>
 
         {/* Editable original */}
-        <div className="surface p-4 mb-4">
+        <div className="paper-texture surface p-4 mb-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-[var(--muted)]">你说的内容</span>
-            <span className="text-[11px] text-[var(--muted)] opacity-60">可编辑</span>
+            <span className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)]">你说的内容</span>
+            <span className="font-typewriter text-[10px] text-[var(--muted)] opacity-50">可编辑</span>
           </div>
           <textarea
             value={editedText}
@@ -70,8 +74,8 @@ export default function AnalysisPreview({
         </div>
 
         {/* AI analysis */}
-        <div className="surface p-4 mb-4">
-          <span className="text-xs font-medium text-[var(--muted)] mb-3 block">AI 提取的关键信息</span>
+        <div className="paper-texture surface p-4 mb-4">
+          <span className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)] mb-3 block">AI 提取的关键信息</span>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
             {sections.map((s) => (
@@ -80,7 +84,7 @@ export default function AnalysisPreview({
                   {s.emoji}
                 </span>
                 <div>
-                  <p className="text-[11px] text-[var(--muted)]">{s.label}</p>
+                  <p className="font-typewriter text-[10px] text-[var(--muted)] tracking-wide">{s.label}</p>
                   <p className={`text-sm ${s.text}`}>{s.content}</p>
                 </div>
               </div>
@@ -93,10 +97,10 @@ export default function AnalysisPreview({
                 {s.emoji}
               </span>
               <div>
-                <p className="text-[11px] text-[var(--muted)] mb-1">{s.label}</p>
+                <p className="font-typewriter text-[10px] text-[var(--muted)] mb-1 tracking-wide">{s.label}</p>
                 <div className="flex flex-wrap gap-1">
                   {s.items.map((item) => (
-                    <span key={item} className={`text-xs ${s.bg} ${s.text} px-2 py-0.5 rounded-full`}>
+                    <span key={item} className={`font-typewriter text-[11px] ${s.bg} ${s.text} px-2 py-0.5 rounded-full`}>
                       {item}
                     </span>
                   ))}
@@ -110,7 +114,7 @@ export default function AnalysisPreview({
         <div className="flex gap-3">
           <button
             onClick={onBack}
-            className="flex-shrink-0 px-5 py-2.5 rounded-lg text-sm border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface)] transition-colors"
+            className="flex-shrink-0 px-5 py-2.5 rounded-lg font-typewriter text-xs border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface)] transition-colors tracking-wide"
           >
             返回修改
           </button>
