@@ -95,7 +95,7 @@ export default function InterviewGuide({
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={() => { if (isRecording) stopRecording(); onBack(); }}
-            className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-xs tracking-wide uppercase"
+            className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors duration-200 text-xs tracking-wide uppercase"
           >
             ← 返回
           </button>
@@ -112,10 +112,10 @@ export default function InterviewGuide({
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Guide (2 cols) */}
           <div className="lg:col-span-2">
-            <h2 className="font-serif-display text-2xl font-light text-[var(--foreground)] mb-1">
+            <h2 className="font-serif-display text-2xl font-light text-[var(--foreground)] mb-1 animate-reveal-up" style={{ animationDelay: "0ms", opacity: 0, animationFillMode: "forwards" }}>
               说说你的<span className="italic">故事</span>
             </h2>
-            <p className="font-typewriter text-[11px] text-[var(--muted)] mb-5 tracking-wide">
+            <p className="font-typewriter text-[11px] text-[var(--muted)] mb-5 tracking-wide animate-fade-in" style={{ animationDelay: "150ms", opacity: 0, animationFillMode: "forwards" }}>
               不用每个都回答，挑想说的说。
             </p>
             <div className="space-y-2.5">
@@ -123,9 +123,9 @@ export default function InterviewGuide({
                 <div
                   key={q.id}
                   className="flex items-start gap-2.5 animate-slide-up"
-                  style={{ animationDelay: `${i * 60}ms`, animationFillMode: "both" }}
+                  style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: "both" }}
                 >
-                  <span className="flex-shrink-0 w-5 h-5 rounded-full border border-[var(--accent)]/30 text-[var(--accent)] font-typewriter text-[10px] flex items-center justify-center mt-0.5">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full border border-[var(--accent)]/30 text-[var(--accent)] font-typewriter text-[10px] flex items-center justify-center mt-0.5 transition-all duration-300 hover:bg-[var(--accent)] hover:text-white hover:border-[var(--accent)]">
                     {i + 1}
                   </span>
                   <p className="text-sm text-[var(--foreground)] leading-relaxed">
@@ -137,21 +137,21 @@ export default function InterviewGuide({
           </div>
 
           {/* Input (3 cols) */}
-          <div className="lg:col-span-3 space-y-3">
+          <div className="lg:col-span-3 space-y-3 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
             <div className="relative">
               <textarea
                 ref={textareaRef}
                 value={displayText}
                 onChange={(e) => { setText(e.target.value); setError(""); }}
                 placeholder="像发语音给朋友一样随便说，比如：今天下班路上突然觉得一个人走也挺舒服的……"
-                className={`w-full h-52 p-4 rounded-xl text-sm leading-relaxed resize-none max-w-[75ch] ${
+                className={`w-full h-52 p-4 rounded-xl text-sm leading-relaxed resize-none max-w-[75ch] transition-all duration-300 ${
                   isRecording
-                    ? "input-base border-[var(--accent)] ring-[3px] ring-[rgba(198,93,59,0.1)]"
+                    ? "input-base border-[var(--accent)] ring-[3px] ring-[rgba(198,93,59,0.12)]"
                     : "input-base"
                 }`}
               />
               {isRecording && (
-                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[var(--accent-light)] px-2 py-0.5 rounded-full border border-[var(--accent)]/20">
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-[var(--accent-light)] px-2.5 py-1 rounded-full border border-[var(--accent)]/20 animate-fade-scale">
                   <span className="w-1.5 h-1.5 bg-[var(--accent)] rounded-full animate-pulse" />
                   <span className="font-typewriter text-[10px] text-[var(--accent)] tracking-wide">录音中</span>
                 </div>
@@ -159,7 +159,7 @@ export default function InterviewGuide({
             </div>
 
             {isRecording && interimTranscript && (
-              <p className="font-typewriter text-[10px] text-[var(--muted)] px-1">正在识别：{interimTranscript}</p>
+              <p className="font-typewriter text-[10px] text-[var(--muted)] px-1 animate-fade-in">{interimTranscript}</p>
             )}
 
             {error && <p className="text-sm text-[var(--accent)] animate-fade-in">{error}</p>}
@@ -167,22 +167,22 @@ export default function InterviewGuide({
             {/* Voice toggle */}
             <button
               onClick={handleVoiceToggle}
-              className={`w-full py-2.5 rounded-lg font-typewriter text-xs font-medium transition-all duration-200 border ${
+              className={`w-full py-2.5 rounded-lg font-typewriter text-xs font-medium transition-all duration-300 border ${
                 isRecording
                   ? "border-[var(--accent)] bg-[var(--accent-light)] text-[var(--accent)] animate-pulse-soft"
                   : recordingState === "transcribed"
                   ? "border-[var(--color-warm-gray)] bg-[var(--color-paper)] text-[var(--muted)]"
-                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)]"
+                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent)]/40 hover:text-[var(--accent)] hover:bg-[var(--accent-light)]/50"
               }`}
             >
               {isRecording ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="flex items-center gap-0.5">
-                    <span className="w-0.5 h-2.5 bg-[var(--accent)] rounded-full recording-bar" />
-                    <span className="w-0.5 h-2.5 bg-[var(--accent)] rounded-full recording-bar" />
-                    <span className="w-0.5 h-2.5 bg-[var(--accent)] rounded-full recording-bar" />
-                    <span className="w-0.5 h-2.5 bg-[var(--accent)] rounded-full recording-bar" />
-                    <span className="w-0.5 h-2.5 bg-[var(--accent)] rounded-full recording-bar" />
+                  <span className="flex items-center gap-[3px]">
+                    <span className="w-[3px] bg-[var(--accent)] rounded-full recording-bar" />
+                    <span className="w-[3px] bg-[var(--accent)] rounded-full recording-bar" />
+                    <span className="w-[3px] bg-[var(--accent)] rounded-full recording-bar" />
+                    <span className="w-[3px] bg-[var(--accent)] rounded-full recording-bar" />
+                    <span className="w-[3px] bg-[var(--accent)] rounded-full recording-bar" />
                   </span>
                   点击停止
                 </span>
@@ -196,7 +196,9 @@ export default function InterviewGuide({
             <button
               onClick={handleSubmit}
               disabled={isGenerating || !text.trim()}
-              className="w-full py-3 rounded-lg font-medium text-sm btn-primary font-typewriter tracking-wide"
+              className={`w-full py-3 rounded-lg font-medium text-sm font-typewriter tracking-wide transition-all duration-300 ${
+                isGenerating ? "btn-loading" : "btn-primary"
+              }`}
             >
               {isGenerating ? "AI 正在整理……" : "下一步：让 AI 整理内容"}
             </button>

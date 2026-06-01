@@ -67,7 +67,7 @@ export default function PostResult({
       <div className="sticky-header sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-xs tracking-wide uppercase">
+            <button onClick={onBack} className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors duration-200 text-xs tracking-wide uppercase">
               ← 返回
             </button>
             <div className="flex items-center gap-2">
@@ -79,13 +79,13 @@ export default function PostResult({
           </div>
           <button
             onClick={handleCopy}
-            className={`px-3.5 py-1.5 rounded-lg font-typewriter text-xs font-medium transition-all duration-200 tracking-wide ${
+            className={`px-4 py-1.5 rounded-lg font-typewriter text-xs font-medium transition-all duration-300 tracking-wide ${
               copied
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-                : "bg-[var(--accent)] text-[#F4F1EA] hover:bg-[var(--accent-hover)]"
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60 animate-bounce-in"
+                : "bg-[var(--accent)] text-[#F4F1EA] hover:bg-[var(--accent-hover)] hover:shadow-md"
             }`}
           >
-            {copied ? "已复制" : "复制帖子"}
+            {copied ? "已复制 ✓" : "复制帖子"}
           </button>
         </div>
       </div>
@@ -95,19 +95,20 @@ export default function PostResult({
           {/* Left (3 cols) */}
           <div className="lg:col-span-3 space-y-4">
             {/* Style switcher */}
-            <div className="surface p-4">
+            <div className="surface p-4 animate-fade-scale" style={{ animationDelay: "0ms", animationFillMode: "both" }}>
               <div className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)] mb-2.5">切换风格</div>
               <div className="flex flex-wrap gap-2">
-                {postStyles.map((s) => (
+                {postStyles.map((s, i) => (
                   <button
                     key={s.value}
                     onClick={() => handleStyleSwitch(s.value)}
                     disabled={isSwitching}
-                    className={`px-3 py-1.5 rounded-lg font-typewriter text-[11px] font-medium transition-all duration-200 tracking-wide ${
+                    className={`px-3 py-1.5 rounded-lg font-typewriter text-[11px] font-medium transition-all duration-250 tracking-wide ${
                       selectedStyle === s.value
-                        ? "bg-[var(--accent)] text-[#F4F1EA]"
-                        : "bg-[var(--color-paper)] text-[var(--muted)] hover:bg-[var(--color-warm-gray)]/50 border border-[var(--border)]"
-                    } ${isSwitching ? "opacity-50 cursor-not-allowed" : ""}`}
+                        ? "bg-[var(--accent)] text-[#F4F1EA] shadow-sm"
+                        : "bg-[var(--color-paper)] text-[var(--muted)] hover:bg-[var(--accent-light)] hover:text-[var(--accent)] border border-[var(--border)] hover:border-[var(--accent)]/30"
+                    } ${isSwitching ? "opacity-50 cursor-not-allowed" : "active:scale-95"}`}
+                    style={{ animationDelay: `${i * 40}ms` }}
                   >
                     {s.emoji} {s.label}
                   </button>
@@ -116,7 +117,7 @@ export default function PostResult({
             </div>
 
             {/* Generated post */}
-            <div className={`paper-texture surface p-5 transition-opacity duration-200 ${isSwitching ? "opacity-40" : "opacity-100"}`}>
+            <div className={`paper-texture surface p-5 content-transition ${isSwitching ? "switching" : ""}`}>
               {/* Title */}
               <div className="mb-4">
                 <div className="font-typewriter text-[10px] text-[var(--muted)] mb-1 tracking-widest uppercase">标题</div>
@@ -143,8 +144,12 @@ export default function PostResult({
               <div className="mb-4">
                 <div className="font-typewriter text-[10px] text-[var(--muted)] mb-1 tracking-widest uppercase">标签</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {post.hashtags.map((tag) => (
-                    <span key={tag} className="font-typewriter text-[11px] text-[var(--accent)] bg-[var(--accent-light)] border border-[var(--accent)]/10 px-2 py-0.5 rounded-full">
+                  {post.hashtags.map((tag, i) => (
+                    <span
+                      key={tag}
+                      className="font-typewriter text-[11px] text-[var(--accent)] bg-[var(--accent-light)] border border-[var(--accent)]/10 px-2 py-0.5 rounded-full tag-hover"
+                      style={{ animationDelay: isSwitching ? "0ms" : `${i * 60}ms` }}
+                    >
                       #{tag}
                     </span>
                   ))}
@@ -161,11 +166,15 @@ export default function PostResult({
             </div>
 
             {/* Analysis */}
-            <div className="surface p-4">
+            <div className="surface p-4 animate-fade-in" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
               <div className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)] mb-2">内容分析</div>
               <div className="flex flex-wrap gap-1.5">
-                {analysis.keyDetails.map((d) => (
-                  <span key={d} className="font-typewriter text-[11px] bg-[var(--color-paper)] text-[var(--muted)] px-2 py-0.5 rounded-full border border-[var(--border)]">
+                {analysis.keyDetails.map((d, i) => (
+                  <span
+                    key={d}
+                    className="font-typewriter text-[11px] bg-[var(--color-paper)] text-[var(--muted)] px-2 py-0.5 rounded-full border border-[var(--border)] tag-hover animate-tag-pop"
+                    style={{ animationDelay: `${300 + i * 50}ms`, animationFillMode: "both" }}
+                  >
                     {d}
                   </span>
                 ))}
@@ -173,11 +182,13 @@ export default function PostResult({
             </div>
           </div>
 
-          {/* Right (2 cols) */}
-          <div className="lg:col-span-2">
+          {/* Right (2 cols) — floating phone */}
+          <div className="lg:col-span-2 animate-fade-in" style={{ animationDelay: "300ms", animationFillMode: "both" }}>
             <div className="sticky top-16">
               <div className="font-typewriter text-[10px] text-[var(--muted)] mb-3 text-center tracking-widest uppercase">预览效果</div>
-              <PhonePreview post={post} />
+              <div className="animate-float">
+                <PhonePreview post={post} />
+              </div>
             </div>
           </div>
         </div>

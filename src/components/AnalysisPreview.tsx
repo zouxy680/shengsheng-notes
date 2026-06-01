@@ -36,11 +36,13 @@ export default function AnalysisPreview({
     { emoji: "👥", label: "适合人群", bg: "bg-violet-50", text: "text-violet-800", items: analysis.targetAudience },
   ].filter((s) => s.items.length > 0);
 
+  let tagIndex = 0;
+
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       <div className="sticky-header sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button onClick={onBack} className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-xs tracking-wide uppercase">
+          <button onClick={onBack} className="font-typewriter text-[var(--muted)] hover:text-[var(--foreground)] transition-colors duration-200 text-xs tracking-wide uppercase">
             ← 返回编辑
           </button>
           <div className="flex items-center gap-2">
@@ -53,15 +55,15 @@ export default function AnalysisPreview({
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6 w-full flex-1">
-        <h2 className="font-serif-display text-2xl font-light mb-1">
+        <h2 className="font-serif-display text-2xl font-light mb-1 animate-reveal-up" style={{ animationDelay: "0ms", opacity: 0, animationFillMode: "forwards" }}>
           AI 帮你整理<span className="italic">好了</span>
         </h2>
-        <p className="font-typewriter text-[11px] text-[var(--muted)] mb-6 tracking-wide">
+        <p className="font-typewriter text-[11px] text-[var(--muted)] mb-6 tracking-wide animate-fade-in" style={{ animationDelay: "120ms", opacity: 0, animationFillMode: "forwards" }}>
           看看提取的信息对不对，可以修改你的原文后继续。
         </p>
 
         {/* Editable original */}
-        <div className="paper-texture surface p-4 mb-4">
+        <div className="paper-texture surface p-4 mb-4 animate-fade-scale" style={{ animationDelay: "200ms", animationFillMode: "both" }}>
           <div className="flex items-center justify-between mb-2">
             <span className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)]">你说的内容</span>
             <span className="font-typewriter text-[10px] text-[var(--muted)] opacity-50">可编辑</span>
@@ -74,7 +76,7 @@ export default function AnalysisPreview({
         </div>
 
         {/* AI analysis */}
-        <div className="paper-texture surface p-4 mb-4">
+        <div className="paper-texture surface p-4 mb-4 animate-fade-scale" style={{ animationDelay: "350ms", animationFillMode: "both" }}>
           <span className="font-typewriter text-[10px] tracking-widest uppercase text-[var(--muted)] mb-3 block">AI 提取的关键信息</span>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
@@ -99,11 +101,18 @@ export default function AnalysisPreview({
               <div>
                 <p className="font-typewriter text-[10px] text-[var(--muted)] mb-1 tracking-wide">{s.label}</p>
                 <div className="flex flex-wrap gap-1">
-                  {s.items.map((item) => (
-                    <span key={item} className={`font-typewriter text-[11px] ${s.bg} ${s.text} px-2 py-0.5 rounded-full`}>
-                      {item}
-                    </span>
-                  ))}
+                  {s.items.map((item) => {
+                    tagIndex++;
+                    return (
+                      <span
+                        key={item}
+                        className={`font-typewriter text-[11px] ${s.bg} ${s.text} px-2 py-0.5 rounded-full tag-hover animate-tag-pop`}
+                        style={{ animationDelay: `${400 + tagIndex * 50}ms`, animationFillMode: "both" }}
+                      >
+                        {item}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -111,17 +120,17 @@ export default function AnalysisPreview({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 animate-fade-in" style={{ animationDelay: "500ms", opacity: 0, animationFillMode: "forwards" }}>
           <button
             onClick={onBack}
-            className="flex-shrink-0 px-5 py-2.5 rounded-lg font-typewriter text-xs border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface)] transition-colors tracking-wide"
+            className="flex-shrink-0 px-5 py-2.5 rounded-lg font-typewriter text-xs border border-[var(--border)] text-[var(--muted)] hover:bg-[var(--surface)] hover:border-[var(--accent)]/30 transition-all duration-200 tracking-wide"
           >
             返回修改
           </button>
           <button
             onClick={() => onConfirm(editedText)}
             disabled={isGenerating}
-            className="flex-1 py-2.5 rounded-lg font-medium text-sm btn-primary"
+            className={`flex-1 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 ${isGenerating ? "btn-loading" : "btn-primary"}`}
           >
             {isGenerating ? "正在生成……" : "生成小红书帖子"}
           </button>

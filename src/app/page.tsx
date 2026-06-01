@@ -88,7 +88,7 @@ export default function Home() {
   return (
     <>
       {error && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-red-50/90 backdrop-blur-sm border border-red-200/60 text-red-600 px-5 py-3 rounded-xl shadow-lg text-sm max-w-md animate-slide-up">
+        <div className="fixed top-4 left-1/2 z-50 bg-red-50/95 backdrop-blur-md border border-red-200/60 text-red-600 px-5 py-3 rounded-xl shadow-lg text-sm max-w-md animate-slide-down">
           {error}
           <button
             onClick={() => setError("")}

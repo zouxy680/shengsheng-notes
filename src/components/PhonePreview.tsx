@@ -24,12 +24,12 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
         <div className="flex items-center justify-between px-5 pt-3 pb-1">
           <span className="font-typewriter text-[10px] text-[var(--color-muted)] font-medium">9:41</span>
           <div className="w-3 h-1.5 border border-[var(--color-warm-gray)] rounded-sm relative">
-            <div className="absolute inset-0.5 bg-[var(--color-warm-gray)] rounded-[1px]" style={{ width: "60%" }} />
+            <div className="absolute inset-0.5 bg-[var(--color-warm-gray)] rounded-[1px] transition-all duration-1000" style={{ width: "60%" }} />
           </div>
         </div>
 
         {/* Cover */}
-        <div className={`mx-3 mt-2 rounded-lg bg-gradient-to-br ${gradient} h-40 flex items-center justify-center transition-all duration-300 border border-black/5`}>
+        <div className={`mx-3 mt-2 rounded-lg bg-gradient-to-br ${gradient} h-40 flex items-center justify-center transition-all duration-500 border border-black/5`}>
           <p className="text-base font-bold text-[var(--color-ink)]/70 leading-snug text-center px-5">
             {post.coverText}
           </p>
@@ -40,7 +40,7 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
           <h3 className="text-[13px] font-bold text-[var(--color-ink)] leading-snug mb-1.5">{post.title}</h3>
 
           <div className="flex items-center gap-1.5 mb-2">
-            <div className="w-4 h-4 rounded-full bg-[var(--accent)]" />
+            <div className="w-4 h-4 rounded-full bg-[var(--accent)] transition-transform duration-300 hover:scale-110" />
             <span className="font-typewriter text-[10px] text-[var(--muted)]">声声笔记用户</span>
             <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)]">· 刚刚</span>
           </div>
@@ -51,7 +51,7 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
 
           <div className="flex flex-wrap gap-1 mb-2">
             {post.hashtags.map((tag) => (
-              <span key={tag} className="font-typewriter text-[10px] text-[var(--accent)] bg-[var(--accent-light)] px-1.5 py-0.5 rounded">
+              <span key={tag} className="font-typewriter text-[10px] text-[var(--accent)] bg-[var(--accent-light)] px-1.5 py-0.5 rounded transition-colors duration-200 hover:bg-[var(--accent)] hover:text-white">
                 #{tag}
               </span>
             ))}
@@ -62,9 +62,9 @@ export default function PhonePreview({ post }: PhonePreviewProps) {
           </div>
 
           <div className="flex items-center gap-3 pb-2.5 border-t border-[var(--border)] pt-2">
-            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)]">❤️ 0</span>
-            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)]">⭐ 收藏</span>
-            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)]">💬 评论</span>
+            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)] transition-colors duration-200 hover:text-[var(--accent)] cursor-pointer">❤️ 0</span>
+            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)] transition-colors duration-200 hover:text-[var(--color-mustard)] cursor-pointer">⭐ 收藏</span>
+            <span className="font-typewriter text-[10px] text-[var(--color-warm-gray)] transition-colors duration-200 hover:text-[var(--accent)] cursor-pointer">💬 评论</span>
           </div>
         </div>
       </div>
