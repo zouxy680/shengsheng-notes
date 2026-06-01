@@ -27,12 +27,9 @@ export default function PostResult({
   onBack,
 }: PostResultProps) {
   const [post, setPost] = useState<XiaohongshuPost>(initialPost);
-  const [selectedStyle, setSelectedStyle] = useState<PostStyle>(
-    initialPost.style
-  );
+  const [selectedStyle, setSelectedStyle] = useState<PostStyle>(initialPost.style);
   const [isSwitching, setIsSwitching] = useState(false);
   const [copied, setCopied] = useState(false);
-  const copyTimerRef = useState<ReturnType<typeof setTimeout> | null>(null)[0];
 
   const config = sceneConfigs.find((s) => s.type === scene)!;
   const currentStyleConfig = postStyles.find((s) => s.value === selectedStyle);
@@ -68,176 +65,119 @@ export default function PostResult({
   return (
     <div className="min-h-screen flex flex-col animate-fade-in">
       {/* Header */}
-      <div className="glass-header border-b border-white/30 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="sticky-header sticky top-0 z-10">
+        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={onBack}
-              className="text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
-            >
+            <button onClick={onBack} className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-sm">
               ← 返回
             </button>
             <div className="flex items-center gap-2">
-              <span
-                className={`w-7 h-7 rounded-lg bg-gradient-to-br ${config.gradient} flex items-center justify-center text-sm shadow-sm`}
-              >
+              <span className={`w-6 h-6 rounded-md bg-gradient-to-br ${config.gradient} flex items-center justify-center text-xs`}>
                 {config.emoji}
               </span>
-              <span className="font-medium text-gray-700">{scene}</span>
+              <span className="text-sm font-medium">{scene}</span>
             </div>
           </div>
           <button
             onClick={handleCopy}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+            className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
               copied
-                ? "bg-green-100/80 text-green-600"
-                : "bg-orange-100/80 text-orange-600 hover:bg-orange-200/80"
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-[var(--accent-light)] text-[var(--accent)] hover:bg-[rgba(255,71,87,0.12)]"
             }`}
           >
-            {copied ? "已复制，可以去发布啦" : "一键复制"}
+            {copied ? "已复制" : "复制帖子"}
           </button>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6 w-full flex-1">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-          {/* Left: Post Content */}
-          <div className="lg:col-span-3 space-y-5">
-            {/* Analysis Card */}
-            <div className="glass-card p-5">
-              <h3 className="text-sm font-semibold text-gray-500 mb-3">
-                内容分析
-              </h3>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-gray-400">情绪：</span>
-                  <span className="text-gray-700">{analysis.emotion}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400">主题：</span>
-                  <span className="text-gray-700">{analysis.topic}</span>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {analysis.keyDetails.map((d) => (
-                  <span
-                    key={d}
-                    className="text-xs bg-orange-50/80 text-orange-600 px-2 py-0.5 rounded-full"
-                  >
-                    {d}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Style Switcher */}
-            <div className="glass-card p-5">
-              <h3 className="text-sm font-semibold text-gray-500 mb-3">
-                切换风格，生成不同感觉的帖子
-              </h3>
-              <div className="space-y-2">
+      <div className="max-w-5xl mx-auto px-4 py-6 w-full flex-1">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Left (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Style switcher */}
+            <div className="surface p-4">
+              <div className="text-xs font-medium text-[var(--muted)] mb-2.5">切换风格</div>
+              <div className="flex flex-wrap gap-2">
                 {postStyles.map((s) => (
                   <button
                     key={s.value}
                     onClick={() => handleStyleSwitch(s.value)}
                     disabled={isSwitching}
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 border ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
                       selectedStyle === s.value
-                        ? "border-orange-300/60 bg-orange-50/60 shadow-sm"
-                        : "border-transparent hover:border-gray-200/60 hover:bg-white/60"
+                        ? "bg-[var(--accent)] text-white"
+                        : "bg-gray-100 text-[var(--muted)] hover:bg-gray-200"
                     } ${isSwitching ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
-                    <span className="text-lg flex-shrink-0">{s.emoji}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-medium ${
-                        selectedStyle === s.value ? "text-orange-700" : "text-gray-700"
-                      }`}>
-                        {s.label}
-                      </div>
-                      <div className={`text-xs ${
-                        selectedStyle === s.value ? "text-orange-400" : "text-gray-400"
-                      }`}>
-                        {s.desc}
-                      </div>
-                    </div>
-                    {selectedStyle === s.value && (
-                      <span className="text-xs text-orange-500 font-medium flex-shrink-0">当前</span>
-                    )}
+                    {s.emoji} {s.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Generated Post */}
-            <div
-              className={`glass-card p-5 transition-all duration-500 ${
-                isSwitching ? "opacity-30 scale-[0.99]" : "opacity-100 scale-100"
-              }`}
-            >
-              {/* Style Badge */}
-              {currentStyleConfig && (
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mb-4 ${currentStyleConfig.color}`}>
-                  {currentStyleConfig.emoji} {currentStyleConfig.label}
-                </span>
-              )}
-
+            {/* Generated post */}
+            <div className={`surface p-5 transition-opacity duration-200 ${isSwitching ? "opacity-40" : "opacity-100"}`}>
               {/* Title */}
               <div className="mb-4">
-                <div className="text-xs text-gray-400 mb-1">标题</div>
-                <h2 className="text-lg font-bold text-gray-800">
-                  {post.title}
-                </h2>
+                <div className="text-[11px] text-[var(--muted)] mb-1 uppercase tracking-wide">标题</div>
+                <h2 className="text-lg font-bold leading-snug">{post.title}</h2>
               </div>
 
-              {/* Cover Text */}
+              {/* Cover */}
               <div className="mb-4">
-                <div className="text-xs text-gray-400 mb-1">封面文案</div>
-                <p className="text-sm text-gray-600 bg-gradient-to-r from-orange-50/80 to-pink-50/80 rounded-xl px-4 py-2.5">
+                <div className="text-[11px] text-[var(--muted)] mb-1 uppercase tracking-wide">封面文案</div>
+                <p className="text-sm bg-[var(--accent-light)] rounded-lg px-3.5 py-2 text-[var(--accent)]">
                   {post.coverText}
                 </p>
               </div>
 
               {/* Body */}
               <div className="mb-4">
-                <div className="text-xs text-gray-400 mb-1">正文</div>
-                <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                <div className="text-[11px] text-[var(--muted)] mb-1 uppercase tracking-wide">正文</div>
+                <div className="text-sm leading-relaxed whitespace-pre-line max-w-[75ch] text-[var(--foreground)]">
                   {post.body}
                 </div>
               </div>
 
-              {/* Hashtags */}
+              {/* Tags */}
               <div className="mb-4">
-                <div className="text-xs text-gray-400 mb-1">标签</div>
+                <div className="text-[11px] text-[var(--muted)] mb-1 uppercase tracking-wide">标签</div>
                 <div className="flex flex-wrap gap-1.5">
                   {post.hashtags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="text-xs text-blue-500 bg-blue-50/80 px-2.5 py-1 rounded-full"
-                    >
+                    <span key={tag} className="text-xs text-[var(--accent)] bg-[var(--accent-light)] px-2 py-0.5 rounded-full">
                       #{tag}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* Comment Prompt */}
+              {/* Comment prompt */}
               <div>
-                <div className="text-xs text-gray-400 mb-1">
-                  评论区引导
-                </div>
-                <p className="text-sm text-gray-600 bg-gray-50/80 rounded-xl px-4 py-2.5">
+                <div className="text-[11px] text-[var(--muted)] mb-1 uppercase tracking-wide">评论区引导</div>
+                <p className="text-sm bg-gray-50 rounded-lg px-3.5 py-2 text-[var(--muted)]">
                   {post.commentPrompt}
                 </p>
               </div>
             </div>
+
+            {/* Analysis */}
+            <div className="surface p-4">
+              <div className="text-xs font-medium text-[var(--muted)] mb-2">内容分析</div>
+              <div className="flex flex-wrap gap-1.5">
+                {analysis.keyDetails.map((d) => (
+                  <span key={d} className="text-[11px] bg-gray-100 text-[var(--muted)] px-2 py-0.5 rounded-full">
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
-          {/* Right: Phone Preview */}
+          {/* Right (2 cols) */}
           <div className="lg:col-span-2">
-            <div className="sticky top-20">
-              <h3 className="text-sm font-semibold text-gray-400 mb-4 text-center">
-                预览效果
-              </h3>
+            <div className="sticky top-16">
+              <div className="text-xs text-[var(--muted)] mb-3 text-center">预览效果</div>
               <PhonePreview post={post} />
             </div>
           </div>
